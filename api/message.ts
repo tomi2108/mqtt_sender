@@ -1,6 +1,6 @@
 import type { Buffer } from 'node:buffer';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { getMqttClient } from './mqtt';
+import { getMqttClient } from './mqtt.js';
 
 type Message = {
   message: string;
