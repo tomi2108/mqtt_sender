@@ -20,11 +20,10 @@ function encodeMessage({ message, duration }: Message) {
   view.setUint32(0, messageBytes.length, true);
   buffer.set(messageBytes, 4);
 
-  if (duration) {
+  if (duration)
     view.setUint32(4 + messageBytes.length, duration, true);
-  }
 
-  return buffer as Buffer;
+  return Buffer.from(buffer)
 }
 
 export default async function handler(
@@ -36,10 +35,22 @@ export default async function handler(
   }
 
   try {
-    const data = req.body as Message;
-    const client = getMqttClient();
+    const data = JSON.parse(req.body) as Message;
+    const client = await getMqttClient();
 
-    client.publish(data.topic, encodeMessage(data));
+
+    client.publish(
+      data.topic,
+      encodeMessage(data),
+      (error) => {
+        if (error) {
+          console.error('MQTT publish error:', error);
+          return;
+        }
+
+        console.log('MQTT publish callback: success');
+      },
+    );
 
     return res.status(200).end();
   } catch (error) {

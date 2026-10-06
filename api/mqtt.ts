@@ -5,20 +5,29 @@ dotenv.config();
 
 let mqttInstance: MqttClient | null = null;
 
-export function getMqttClient() {
-  console.log("Connecting")
-  console.log(process.env.MQTT_HOST)
-  console.log(process.env.MQTT_USER)
-  console.log(process.env.MQTT_PASSWORD)
-  if (!mqttInstance) {
-    mqttInstance = mqtt.connect(
+export function getMqttClient(): Promise<MqttClient> {
+  if (mqttInstance?.connected)
+    return Promise.resolve(mqttInstance);
+
+  return new Promise((resolve, reject) => {
+    const client = mqtt.connect(
       `wss://${process.env.MQTT_HOST}:8884/mqtt`,
       {
         username: process.env.MQTT_USER,
         password: process.env.MQTT_PASSWORD,
-        clientId: 'webuser',
+        clientId: `webuser-${Date.now()}`,
       },
     );
-  }
-  return mqttInstance;
+
+    client.once('connect', () => {
+      console.log('MQTT connected');
+      mqttInstance = client;
+      resolve(client);
+    });
+
+    client.once('error', (error) => {
+      console.error('MQTT error:', error);
+      reject(error);
+    });
+  });
 }
