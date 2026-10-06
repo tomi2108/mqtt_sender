@@ -46,6 +46,7 @@ export default async function handler(
     const data: Message = JSON.parse(body);
 
     const client = getMqttClient();
+    console.log({ data })
 
     client.publish(data.topic, encodeMessage(data));
 

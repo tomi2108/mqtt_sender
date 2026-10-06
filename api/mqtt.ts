@@ -7,6 +7,10 @@ let mqttInstance: MqttClient | null = null;
 
 export function getMqttClient() {
   if (!mqttInstance) {
+    console.log("Connecting")
+    console.log(process.env.MQTT_HOST)
+    console.log(process.env.MQTT_USER)
+    console.log(process.env.MQTT_PASSWORD)
     mqttInstance = mqtt.connect(
       `wss://${process.env.MQTT_HOST}:8884/mqtt`,
       {
@@ -16,6 +20,5 @@ export function getMqttClient() {
       },
     );
   }
-
   return mqttInstance;
 }
